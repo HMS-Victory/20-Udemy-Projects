@@ -1,37 +1,21 @@
-const menuBars=document.getElementById('menu-bars');
-const overlay=document.getElementById('overlay');
-const nav1=document.getElementById('nav-1');
-const nav2=document.getElementById('nav-2');
-const nav3=document.getElementById('nav-3');
-const nav4=document.getElementById('nav-4');
-const nav5=document.getElementById('nav-5');
-const navItems=[nav1, nav2, nav3, nav4, nav5];
+const {body}=document;
 
-//Control Navigation Animation
-function navAnimation(direction1, direction2) {
-    navItems.forEach((nav, i) => {
-        nav.classList.replace(`slide-${direction1}-${i+1}`, `slide-${direction2}-${i+1}`)
-    })
-}
-function toggleNav(){
-    //Toggle: Menu Bars Open/Closed
-    menuBars.classList.toggle('change');
-    //Toggle Menu Active
-    overlay.classList.toggle('overlay-active');
-    if (overlay.classList.contains('overlay-active')) {
-        //Animate Overlay
-        overlay.classList.replace('overlay-slide-left', 'overlay-slide-right');
-         //Animate In-Nav Items
-        navAnimation('out', 'in');
-    }else{
-        overlay.classList.replace('overlay-slide-right', 'overlay-slide-left');
-
-        //Animate Out -Nav Items
-        navAnimation('in', 'out');
+function changeBackground(number) {
+    //Check if background is already showing
+    let previousBackground;
+    if(body.className) {
+        previousBackground=body.className;
+    }
+    //reset CSS class for body
+    body.className='';
+    switch(number) {
+     case '1':
+        return(previousBackground==='background-1' ? false : body.classList.add('background-1'));
+     case '2':
+        return(previousBackground==='background-2' ? false : body.classList.add('background-2'));
+     case '3':
+        return(previousBackground==='background-3' ? false : body.classList.add('background-3'));
+        default:
+        break;
     }
 }
-//Event Listeners
-menuBars.addEventListener('click', toggleNav);
-navItems.forEach((nav)=> {
-    nav.addEventListener('click', toggleNav)
-})
