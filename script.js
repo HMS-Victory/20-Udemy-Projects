@@ -1,37 +1,51 @@
-const menuBars=document.getElementById('menu-bars');
-const overlay=document.getElementById('overlay');
-const nav1=document.getElementById('nav-1');
-const nav2=document.getElementById('nav-2');
-const nav3=document.getElementById('nav-3');
-const nav4=document.getElementById('nav-4');
-const nav5=document.getElementById('nav-5');
-const navItems=[nav1, nav2, nav3, nav4, nav5];
+const toggleSwitch=document.querySelector('input[type="checkbox"]');
+const nave=document.getElementById('nav');
+const toggleIcon=document.getElementById('toggle-icon');
+const image1=document.getElementById('image1');
+const image2= document.getElementById('image2');
+const image3=document.getElementById('image3');
+const textBox=document.getElementById('text-box');
 
-//Control Navigation Animation
-function navAnimation(direction1, direction2) {
-    navItems.forEach((nav, i) => {
-        nav.classList.replace(`slide-${direction1}-${i+1}`, `slide-${direction2}-${i+1}`)
-    })
+
+//Dark or Light Images
+function imageMode(color) {
+    image1.src=`img/undraw_proud_coder_${color}.svg`;
+    image2.src=`img/undraw_feeling_proud_${color}.svg`;
+    image3.src=`img/undraw_conceptual_idea_${color}.svg`;
 }
-function toggleNav(){
-    //Toggle: Menu Bars Open/Closed
-    menuBars.classList.toggle('change');
-    //Toggle Menu Active
-    overlay.classList.toggle('overlay-active');
-    if (overlay.classList.contains('overlay-active')) {
-        //Animate Overlay
-        overlay.classList.replace('overlay-slide-left', 'overlay-slide-right');
-         //Animate In-Nav Items
-        navAnimation('out', 'in');
-    }else{
-        overlay.classList.replace('overlay-slide-right', 'overlay-slide-left');
 
-        //Animate Out -Nav Items
-        navAnimation('in', 'out');
+//toggle Dark and Light Mode
+function toggleDarkLightMode(isDark) {
+    nave.style.backgroundColor=isDark ? 'rgb (0 0 0 /50%)' : 'rgb(255 255 255/ 50%)';
+    textBox.style.backgroundColor=isDark ? 'rgb(255 255 255/ 50%)' : 'rgb(0 0 0 / 50%)';
+    toggleIcon.children[0].textContent=isDark ? 'Dark Mode' : 'LightMode';
+    isDark ? toggleIcon.children[1].classList.replace('fa-sun', 'fa-moon'):
+    toggleIcon.children[1].classList.replace('fa-moon', 'fa-sun');
+    isDark ? imageMode('dark') : imageMode('light')
+}
+
+//Switch Theme Dynaimacally
+function switchTheme(event) {
+    if (event.target.checked) {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        localStorage.setItem('theme', 'dark');
+        toggleDarkLightMode(true);
+    }else {
+        document.documentElement.setAttribute('data-theme', 'light')
+        localStorage.setItem('theme', 'light')
+        toggleDarkLightMode(false);
     }
 }
-//Event Listeners
-menuBars.addEventListener('click', toggleNav);
-navItems.forEach((nav)=> {
-    nav.addEventListener('click', toggleNav)
-})
+
+//Event Listener
+toggleSwitch.addEventListener('change', switchTheme);
+
+//Check Local Storage for Theme
+const currentTheme=localStorage.getItem('theme');
+if (currentTheme) {
+    document.documentElement.setAttribute('data-theme', currentTheme)
+    if (currentTheme==='dark') {
+        toggleSwitch.checked=true;
+        toggleDarkLightMode(true);
+    }
+}
