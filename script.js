@@ -1,37 +1,83 @@
-const menuBars=document.getElementById('menu-bars');
-const overlay=document.getElementById('overlay');
-const nav1=document.getElementById('nav-1');
-const nav2=document.getElementById('nav-2');
-const nav3=document.getElementById('nav-3');
-const nav4=document.getElementById('nav-4');
-const nav5=document.getElementById('nav-5');
-const navItems=[nav1, nav2, nav3, nav4, nav5];
+//set constants
+const calculatorDisplay=document.querySelector('h1');
+const inputBtns=document.querySelectorAll('button')
+const clearBtn=document.getElementById('clear-btn');
 
-//Control Navigation Animation
-function navAnimation(direction1, direction2) {
-    navItems.forEach((nav, i) => {
-        nav.classList.replace(`slide-${direction1}-${i+1}`, `slide-${direction2}-${i+1}`)
-    })
+//Calculate first and second values depending on operator
+const calculate={
+    '/': (firstNumber, secondNumber) => firstNumber/secondNumber,
+
+    '*': (firstNumber, secondNumber) => firstNumber*secondNumber,
+
+    '+': (firstNumber, secondNumber) => firstNumber+secondNumber,
+
+    '-': (firstNumber, secondNumber) => firstNumber-secondNumber,
+
+    '=': (firstNumber, secondNumber) => secondNumber,
+};
+
+//Changeable variables
+let firstValue=0;
+let operatorValue='';
+let awaitingNextValue=false;
+
+function sendNumberValue(number) {
+  //Replace current display value if first vlue is entered
+  if(awaitingNextValue) {
+      calculatorDisplay.textContent=number;
+      awaitingNextValue=false;
+  }else {
+    //If current display value is 0, replace it, if not add number
+    const displayValue=calculatorDisplay.textContent;
+    calculatorDisplay.textContent=displayValue==='0' ? number : displayValue+number;
+  }
 }
-function toggleNav(){
-    //Toggle: Menu Bars Open/Closed
-    menuBars.classList.toggle('change');
-    //Toggle Menu Active
-    overlay.classList.toggle('overlay-active');
-    if (overlay.classList.contains('overlay-active')) {
-        //Animate Overlay
-        overlay.classList.replace('overlay-slide-left', 'overlay-slide-right');
-         //Animate In-Nav Items
-        navAnimation('out', 'in');
-    }else{
-        overlay.classList.replace('overlay-slide-right', 'overlay-slide-left');
-
-        //Animate Out -Nav Items
-        navAnimation('in', 'out');
+//In case someone tries to put in a second decimal
+function addDecimal() {
+    //If operator pressed don't add decimal
+    if(awaitingNextValue) return;
+    //If no decimal, add one
+    if (!calculatorDisplay.textContent.includes('.')){
+        calculatorDisplay.textContent=`${calculatorDisplay.textContent}.`;
     }
 }
-//Event Listeners
-menuBars.addEventListener('click', toggleNav);
-navItems.forEach((nav)=> {
-    nav.addEventListener('click', toggleNav)
-})
+//Functionality
+function useOperator(operator) {
+    const currentValue=Number(calculatorDisplay.textContent);
+    //Prevent multiple operators
+    if(operatorValue && awaitingNextValue){
+        operatorValue=operator;
+        return;
+    }
+    //Assign first Value if no value
+    if(!firstValue) {
+        firstValue=currentValue;
+    }else {
+        const calculation = calculate[operatorValue](firstValue, currentValue);
+        calculatorDisplay.textContent=calculation;
+        firstValue=calculation;
+    }
+    //Ready for the next value, store operator
+    awaitingNextValue=true;
+    operatorValue=operator;
+}
+//Reset display
+function resetAll() {
+    firstValue=0;
+    operatorValue='';
+    awaitingNextValue=false;
+    calculatorDisplay.textContent='0';
+}
+//Add Event Listeners for numbers, operators, decimal buttons
+inputBtns.forEach((inputBtn) => {
+    if (inputBtn.classList.length===0) {
+        inputBtn.addEventListener('click', () => sendNumberValue(inputBtn.value, operatorValue));
+    }else if (inputBtn.classList.contains('operator')) {
+        inputBtn.addEventListener('click', () => useOperator(inputBtn.value));
+    }else if (inputBtn.classList.contains('decimal')) {
+        inputBtn.addEventListener('click', () => addDecimal());
+    }
+});
+
+//Event Listener
+clearBtn.addEventListener('click', resetAll);
