@@ -1,39 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated Navigation</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint Clone</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css"/>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Menu Overlay -->
-  <div class="overlay overlay-slide-left" id="overlay">
-    <!-- Menu Items -->
-    <nav>
-      <ul>
-        <li id="nav-1" class="slide-out-1"><a href="#home">Home</a></li>
-        <li id="nav-2" class="slide-out-2"><a href="#about">About</a></li>
-        <li id="nav-3" class="slide-out-3"><a href="#skills">Skills</a></li>
-        <li id="nav-4" class="slide-out-4"><a href="#projects">Projects</a></li>
-        <li id="nav-5" class="slide-out-5"><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-  </div>
-  <!-- Menu Bars -->
-  <div class="menu-bars" id="menu-bars">
-    <div class="bar1"></div>
-    <div class="bar2"></div>
-    <div class="bar3"></div>
-  </div>
-  <!-- Sections -->
-  <section id="home"><a href="https://jacinto.design" target="_blank">Jacinto Design</a></section>
-  <section id="about"><h1>Learn More About Me</h1></section>
-  <section id="skills"><h1>These Are My Strengths</h1></section>
-  <section id="projects"><h1>These Are My Results</h1></section>
-  <section id="contact"><h1>Available Anytime</h1></section>
-  <!-- Script -->
-  <script src="script.js"></script>
+    <!-- Tool Bar -->
+    <div class="top-bar">
+        <!-- Active Tool -->
+        <div class="active-tool">
+            <span id="active-tool" title="Active Tool">Brush</span>
+        </div>
+        <!-- Brush -->
+        <div class="brush tool">
+            <i class="fas fa-brush" id="brush" title="Brush"></i>
+            <input value="a51dab" class="jscolor" id="brush-color">
+            <span class="size" id="brush-size" title="Brush Size">10</span>
+            <input type="range" min="1" max="50" value="10" class="slider" id="brush-slider">
+        </div>
+        <!-- Bucket -->
+        <div class="bucket tool">
+            <i class="fas fa-fill-drip" title="Background Color"></i>
+            <input value="ffffff" class="jscolor" id="bucket-color">
+        </div>
+        <!-- Eraser -->
+        <div class="tool">
+            <i class="fas fa-eraser" id="eraser" title="Eraser"></i>
+        </div>
+        <!-- Clear Canvas -->
+        <div class="tool">
+            <i class="fas fa-undo-alt" id="clear-canvas" title="Clear"></i>
+        </div>
+        <!-- Save Local Storage -->
+        <div class="tool">
+            <i class="fas fa-download" id="save-storage" title="Save Local Storage"></i>
+        </div>
+        <!-- Load Local Storage -->
+        <div class="tool">
+            <i class="fas fa-upload" id="load-storage" title="Load Local Storage"></i>
+        </div>
+        <!-- Clear Local Storage -->
+        <div class="tool">
+            <i class="fas fa-trash-alt" id="clear-storage" title="Clear Local Storage"></i>
+        </div>
+        <!-- Download Image -->
+        <div class="tool">
+            <a id="download">
+                <i class="far fa-save" title="Save Image File"></i>
+            </a>
+        </div>
+    </div>
+    <!-- Mobile Message -->
+    <div class="mobile-message">
+        <h2>Please use application on larger screen</h2>
+    </div>
+
+    <!-- Script -->
+    <script src="jscolor.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>

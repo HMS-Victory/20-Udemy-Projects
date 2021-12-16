@@ -1,37 +1,216 @@
-const menuBars=document.getElementById('menu-bars');
-const overlay=document.getElementById('overlay');
-const nav1=document.getElementById('nav-1');
-const nav2=document.getElementById('nav-2');
-const nav3=document.getElementById('nav-3');
-const nav4=document.getElementById('nav-4');
-const nav5=document.getElementById('nav-5');
-const navItems=[nav1, nav2, nav3, nav4, nav5];
+const BRUSH_TIME=1500;
+const activeToolEl = document.getElementById('active-tool');
+const brushColorBtn = document.getElementById('brush-color');
+const brushIcon = document.getElementById('brush');
+const brushSize = document.getElementById('brush-size');
+const brushSlider = document.getElementById('brush-slider');
+const bucketColorBtn = document.getElementById('bucket-color');
+const eraser = document.getElementById('eraser');
+const clearCanvasBtn = document.getElementById('clear-canvas');
+const saveStorageBtn = document.getElementById('save-storage');
+const loadStorageBtn = document.getElementById('load-storage');
+const clearStorageBtn = document.getElementById('clear-storage');
+const downloadBtn = document.getElementById('download');
+const { body } = document;
 
-//Control Navigation Animation
-function navAnimation(direction1, direction2) {
-    navItems.forEach((nav, i) => {
-        nav.classList.replace(`slide-${direction1}-${i+1}`, `slide-${direction2}-${i+1}`)
-    })
+// Global Variables
+const canvas=document.createElement('canvas');
+canvas.id='canvas';
+const context=canvas.getContext('2d');
+let currentSize = 10;
+let bucketColor = '#FFFFFF';
+let currentColor = '#A51DAB';
+let isEraser = false;
+ let isMouseDown = false;
+let drawnArray = [];
+
+// Formatting Brush Size
+function displayBrushSize() {
+  if(brushSlider.value<10) {
+    brushSize.textContent=`0${brushSlider.value}`;
+  }else{
+    brushSize.textContent=brushSlider.value;
+  }
 }
-function toggleNav(){
-    //Toggle: Menu Bars Open/Closed
-    menuBars.classList.toggle('change');
-    //Toggle Menu Active
-    overlay.classList.toggle('overlay-active');
-    if (overlay.classList.contains('overlay-active')) {
-        //Animate Overlay
-        overlay.classList.replace('overlay-slide-left', 'overlay-slide-right');
-         //Animate In-Nav Items
-        navAnimation('out', 'in');
-    }else{
-        overlay.classList.replace('overlay-slide-right', 'overlay-slide-left');
 
-        //Animate Out -Nav Items
-        navAnimation('in', 'out');
+//Setting Brush Size
+brushSlider.addEventListener('change', () => {
+  currentSize=brushSlider.value;
+  displayBrushSize();
+});
+
+// Setting Brush Color
+brushColorBtn.addEventListener('change', () => {
+  isEraser=false;
+  currentColor=`#${brushColorBtn.value}`;
+});
+
+// Setting Background Color
+bucketColorBtn.addEventListener('change', () => {
+  bucketColor= `#${bucketColorBtn.value}`;
+  createCanvas();
+  restoreCanvas();
+});
+
+
+// // Eraser
+eraser.addEventListener('click', () => {
+  isEraser=true;
+  brushIcon.style.color = 'white';
+  eraser.style.color = 'black';
+  activeToolEl.textContent = 'Eraser';
+  currentColor=bucketColor;
+  currentSize=50;
+});
+
+// // Switch back to Brush
+function switchToBrush() {
+  isEraser = false;
+  activeToolEl.textContent = 'Brush';
+  brushIcon.style.color = 'black';
+  eraser.style.color = 'white';
+  currentColor = `#${brushColorBtn.value}`;
+  currentSize = 10;
+  brushSlider.value=10;
+  displayBrushSize();
+}
+function brushTimeSetTimeout(ms) {
+  setTimeout(switchToBrush, ms);
+}
+
+// Create Canvas
+function createCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight -50 ;
+  context.fillStyle = bucketColor;
+  context.fillRect(0,0,canvas.width, canvas.height);
+  body.appendChild(canvas);
+  switchToBrush();
+}
+
+//  Clear Canvas
+clearCanvasBtn.addEventListener('click', () => {
+  createCanvas();
+  drawnArray = [];
+  // Active Tool
+  activeToolEl.textContent = 'Canvas Cleared';
+  brushTimeSetTimeout(BRUSH_TIME)
+});
+
+// Draw what is stored in DrawnArray
+function restoreCanvas() {
+  for (let i = 1; i < drawnArray.length; i++) {
+    context.beginPath();
+    context.moveTo(drawnArray[i - 1].x, drawnArray[i - 1].y);
+    context.lineWidth = drawnArray[i].size;
+    context.lineCap = 'round';
+    if (drawnArray[i].eraser) {
+      context.strokeStyle = bucketColor;
+    } else {
+      context.strokeStyle = drawnArray[i].color;
     }
+    context.lineTo(drawnArray[i].x, drawnArray[i].y);
+    context.stroke();
+  }
 }
-//Event Listeners
-menuBars.addEventListener('click', toggleNav);
-navItems.forEach((nav)=> {
-    nav.addEventListener('click', toggleNav)
-})
+
+// Store Drawn Lines in DrawnArray
+function storeDrawn(x, y, size, color, erase) {
+  const line = {
+    x,
+    y,
+    size,
+    color,
+    erase,
+  };
+  drawnArray.push(line);
+}
+
+// Get Mouse Position
+function getMousePosition(event) {
+  const boundaries = canvas.getBoundingClientRect();
+  return {
+    x: event.clientX - boundaries.left,
+    y: event.clientY - boundaries.top,
+  };
+}
+
+// Mouse Down
+canvas.addEventListener('mousedown', (event) => {
+  isMouseDown = true;
+  const currentPosition = getMousePosition(event);
+  context.moveTo(currentPosition.x, currentPosition.y);
+  context.beginPath();
+  context.lineWidth = currentSize;
+  context.lineCap = 'round';
+  context.strokeStyle = currentColor;
+});
+
+// Mouse Move
+canvas.addEventListener('mousemove', (event) => {
+  if (isMouseDown) {
+    const currentPosition = getMousePosition(event);
+    context.lineTo(currentPosition.x, currentPosition.y);
+    context.stroke();
+    storeDrawn(
+      currentPosition.x,
+      currentPosition.y,
+      currentSize,
+      currentColor,
+      isEraser,
+    );
+  } else {
+    storeDrawn(undefined);
+  }
+});
+
+// Mouse Up
+canvas.addEventListener('mouseup', () => {
+  isMouseDown = false;
+});
+
+// Save to Local Storage
+saveStorageBtn.addEventListener('click', () => {
+  localStorage.setItem('savedCanvas', JSON.stringify(drawnArray));
+  // Active Tool
+  activeToolEl.textContent = 'Canvas Saved';
+  brushTimeSetTimeout(BRUSH_TIME)
+});
+
+// Load from Local Storage
+loadStorageBtn.addEventListener('click', () => {
+  if (localStorage.getItem('savedCanvas')) {
+    drawnArray = JSON.parse(localStorage.savedCanvas);
+    restoreCanvas();
+  // Active Tool
+    activeToolEl.textContent = 'Canvas Loaded';
+    brushTimeSetTimeout(BRUSH_TIME)
+  }else {
+    activeToolEl.textContent = 'No Canvas Found';
+    brushTimeSetTimeout(BRUSH_TIME)
+  }
+  
+});
+
+ // Clear Local Storage
+clearStorageBtn.addEventListener('click', () => {
+  localStorage.removeItem('savedCanvas');
+  // Active Tool
+  activeToolEl.textContent = 'Local Storage Cleared';
+  brushTimeSetTimeout(BRUSH_TIME)
+});
+
+// Download Image
+downloadBtn.addEventListener('click', () => {
+  downloadBtn.href=canvas.toDataURL('image/jpeg', 1);
+  downloadBtn.download='paint-example.jpeg';
+  // Active Tool
+  activeToolEl.textContent = 'Image File Saved';
+  brushTimeSetTimeout(BRUSH_TIME)
+});
+
+// Event Listener
+brushIcon.addEventListener('click', switchToBrush);
+
+// On Load
+createCanvas();
