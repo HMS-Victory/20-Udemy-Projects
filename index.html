@@ -3,36 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculator</title>
+    <title>Bookmark App</title>
     <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.min.css"/>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Claculator -->
-    <div class="calculator">
-        <!-- Display -->
-        <div class="calculator-display">
-            <h1>0</h1>
-        </div>
-        <!-- Buttons --> 
-        <div class="calculator-buttons">
-            <button class="operator" value="+">+</button>
-            <button class="operator" value="-">-</button>
-            <button class="operator" value="*">×</button>
-            <button class="operator" value="/">÷</button>
-            <button value="7">7</button>
-            <button value="8">8</button>
-            <button value="9">9</button>
-            <button value="4">4</button>
-            <button value="5">5</button>
-            <button value="6">6</button>
-            <button value="1">1</button>
-            <button value="2">2</button>
-            <button value="3">3</button>
-            <button class="decimal" value=".">.</button>
-            <button value="0">0</button>
-            <button class="clear" id="clear-btn" value="+">C</button>
-            <button class="equal-sign operator" value="=">=</button>
+    <!-- Open Modal -->
+    <h1 id="show-modal">Add Bookmark</h1>
+    <!-- Bookmark -->
+    <div class="container" id="bookmarks-container">
+
+    </div>
+    <!-- Modal -->
+    <div class="modal-container" id="modal">
+        <div class="modal">
+            <i class="fas fa-times close-icon" id="close-modal"></i>
+            <div class="modal-header">
+                <h3>Add Bookmark</h3>
+            </div>
+            <div class="modal-content">
+                <form id="bookmark-form">
+                    <!-- Website Name -->
+                    <div class="form-group">
+                        <label for="website-name" class="form-label">Website Name</label>
+                        <input type="text" class="form-input" id="website-name">
+                    </div>
+                    <!-- Website URL -->
+                    <div class="form-group">
+                        <label for="website-url" class="form-label">Website URL</label>
+                        <input type="text" class="form-input" id="website-url">
+                    </div>
+                    <button type="submit" id='button'>Save</button>
+                </form>
+            </div>
         </div>
     </div>
     <!-- Script -->
