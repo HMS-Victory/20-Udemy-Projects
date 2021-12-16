@@ -1,37 +1,132 @@
-const menuBars=document.getElementById('menu-bars');
-const overlay=document.getElementById('overlay');
-const nav1=document.getElementById('nav-1');
-const nav2=document.getElementById('nav-2');
-const nav3=document.getElementById('nav-3');
-const nav4=document.getElementById('nav-4');
-const nav5=document.getElementById('nav-5');
-const navItems=[nav1, nav2, nav3, nav4, nav5];
+const image=document.querySelector('img');
+const title=document.getElementById('title');
+const artist=document.getElementById('artist');
+const music=document.querySelector('audio');
+const progressContainer=document.getElementById('progress-container');
+const progress=document.getElementById('progress');
+const currentTimeEl=document.getElementById('current-time');
+const durationEl=document.getElementById('duration');
+const prevBtn=document.getElementById('prev');
+const playBtn=document.getElementById('play');
+const nextBtn=document.getElementById('next');
 
-//Control Navigation Animation
-function navAnimation(direction1, direction2) {
-    navItems.forEach((nav, i) => {
-        nav.classList.replace(`slide-${direction1}-${i+1}`, `slide-${direction2}-${i+1}`)
-    })
+//Music
+const songs=[
+    {
+        name: 'jacinto-1',
+        displayName: 'Electric Chill Machine',
+        artist: 'Jacinto Design',
+    },
+    {
+        name: 'jacinto-2',
+        displayName: 'Seven Nation Army (Remix)',
+        artist: 'Jacinto Design',
+    },
+    {
+        name: 'jacinto-3',
+        displayName: 'Goodnight Disco Queen',
+        artist: 'Jacinto Design',
+    },
+    {
+        name: 'metric-1',
+        displayName: 'Front Row (Remix)',
+        artist: 'Metric/Jacinto Design',
+    }
+];
+
+//Check if playing
+let isPlaying=false;
+
+//Play 
+function playSong(){
+    isPlaying=true;
+    playBtn.classList.replace('fa-play', 'fa-pause')
+    playBtn.setAttribute('title', 'Pause')
+    music.play();
 }
-function toggleNav(){
-    //Toggle: Menu Bars Open/Closed
-    menuBars.classList.toggle('change');
-    //Toggle Menu Active
-    overlay.classList.toggle('overlay-active');
-    if (overlay.classList.contains('overlay-active')) {
-        //Animate Overlay
-        overlay.classList.replace('overlay-slide-left', 'overlay-slide-right');
-         //Animate In-Nav Items
-        navAnimation('out', 'in');
-    }else{
-        overlay.classList.replace('overlay-slide-right', 'overlay-slide-left');
 
-        //Animate Out -Nav Items
-        navAnimation('in', 'out');
+//Pause
+function pauseSong(){
+    isPlaying=false;
+    playBtn.classList.replace('fa-pause', 'fa-play')
+    playBtn.setAttribute('title', 'Play')
+    music.pause();
+}
+
+//Play of Pause Event Listener
+playBtn.addEventListener('click', () => (isPlaying ? pauseSong() : playSong()));
+
+//Updat DOM
+function loadSong(song) {
+    title.textContent=song.displayName;
+    artist.innerText=song.artist;
+    music.src=`music/${song.name}.mp3`;
+    image.src=`img/${song.name}.jpg`;
+}
+
+//Current Song
+let songIndex=0;
+
+//Previous Song
+function prevSong() {
+    songIndex--;
+    if (songIndex<0) {
+        songIndex=songs.length-1;
+    }
+    loadSong(songs[songIndex]);
+    playSong();
+}
+//Next Song 
+function nextSong() {
+    songIndex++;
+    if (songIndex>songs.length-1) {
+        songIndex=0;
+    }
+    loadSong(songs[songIndex]);
+    playSong();
+}
+
+//Update Progress Bar & Time
+function updateProgressBar(e) {
+    if (isPlaying) {
+       const {duration, currentTime}=e.srcElement;
+       //Update progress bar width
+       const progressPrecent =(currentTime/duration)*100;
+       progress.style.width=`${progressPrecent}%`;
+       //Calculate display for duration
+       const durationMinutes=Math.floor(duration/60);
+       let durationSeconds=Math.floor(duration % 60);
+       if (durationSeconds<10) {
+           durationSeconds=`0${durationSeconds}`;
+       }
+       //Delay switching duration eement to avoid NaN
+       if (durationSeconds) {
+        durationEl.textContent= `${durationMinutes}:${durationSeconds}`;
+       }
+              //Calculate display for display
+              const currentMinutes=Math.floor(currentTime/60);
+              let currentSeconds=Math.floor(currentTime % 60);
+              if (currentSeconds<10) {
+                  currentSeconds=`0${currentSeconds}`;
+              }
+              currentTimeEl.textContent=`${currentMinutes}:${currentSeconds}`;
     }
 }
+
+//On Load-Select Fist song
+loadSong(songs[songIndex]);
+
+//Set Progress Bar
+function setProgressBar(e) {
+    const width=this.clientWidth;
+    const clickX=e.offsetX;
+    const {duration}=music;
+    music.currentTime=(clickX / width)*duration;
+}
+
 //Event Listeners
-menuBars.addEventListener('click', toggleNav);
-navItems.forEach((nav)=> {
-    nav.addEventListener('click', toggleNav)
-})
+prevBtn.addEventListener('click', prevSong);
+nextBtn.addEventListener('click', nextSong);
+music.addEventListener('ended', nextSong);
+music.addEventListener('timeupdate', updateProgressBar);
+progressContainer.addEventListener('click', setProgressBar)
