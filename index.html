@@ -1,39 +1,61 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Animated Navigation</title>
-  <link rel="icon" type="image/png" href="favicon.png">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Validation</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Menu Overlay -->
-  <div class="overlay overlay-slide-left" id="overlay">
-    <!-- Menu Items -->
-    <nav>
-      <ul>
-        <li id="nav-1" class="slide-out-1"><a href="#home">Home</a></li>
-        <li id="nav-2" class="slide-out-2"><a href="#about">About</a></li>
-        <li id="nav-3" class="slide-out-3"><a href="#skills">Skills</a></li>
-        <li id="nav-4" class="slide-out-4"><a href="#projects">Projects</a></li>
-        <li id="nav-5" class="slide-out-5"><a href="#contact">Contact</a></li>
-      </ul>
-    </nav>
-  </div>
-  <!-- Menu Bars -->
-  <div class="menu-bars" id="menu-bars">
-    <div class="bar1"></div>
-    <div class="bar2"></div>
-    <div class="bar3"></div>
-  </div>
-  <!-- Sections -->
-  <section id="home"><a href="https://jacinto.design" target="_blank">Jacinto Design</a></section>
-  <section id="about"><h1>Learn More About Me</h1></section>
-  <section id="skills"><h1>These Are My Strengths</h1></section>
-  <section id="projects"><h1>These Are My Results</h1></section>
-  <section id="contact"><h1>Available Anytime</h1></section>
-  <!-- Script -->
-  <script src="script.js"></script>
+    <div class="container">
+        <h1>Sign Up Today</h1>
+        <!-- Form -->
+        <form id="form" novalidate>
+            <!-- Full Name -->
+            <div class="form-group">
+                <label for="Full Name">Name</label>
+                <input type="text" id="name" placeholder='Full Name'  name='name'
+                    required minlength="3" maxlength="100">
+            </div>
+            <!-- Phone Number -->
+            <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input type="tell" id="phone" placeholder="555-555-5555" name='phone'
+                    required pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}">
+            </div>
+            <!-- Email Address -->
+            <div class="form-group">
+                <label for="email">Email Adress</label>
+                <input type="email" id="email" placeholder="email@address.com" name='email'
+                    required>
+            </div>
+            <!-- Website URL -->
+            <div class="form-group">
+                <label for="website">Website URL</label>
+                <input type="url" id="website" placeholder="http://Jacinto.design" name='website'
+                    required>
+            </div>
+            <!-- Password -->
+            <div class="form-group">
+                <label for="password1"> Password</label>
+                <input type="password" id="password1" placeholder="Create Password (Min. 8 characters)"
+                    required pattern='^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zZ-Z]).{8,}$' title="Please include at least 1 upercase character, one lower case number and one number">
+            </div>
+            <!-- Confrirm Password -->
+            <div class="form-group">
+                <label for="password2">Confirm Password</label>
+                <input type="password" id="password2" placeholder="Confirm Password" name='password'
+                required pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zZ-Z]).{8,}$">
+            </div>
+            <button type="submit">Register</button>
+        </form>
+        <!-- Error/Success Message -->
+        <div class="message-container">
+            <h3 id="message">Don't Hesitate!</h3>
+        </div>
+    </div>
+    <!-- Script -->
+    <script src="script.js"></script>
 </body>
 </html>

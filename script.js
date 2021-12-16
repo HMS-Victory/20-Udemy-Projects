@@ -1,37 +1,66 @@
-const menuBars=document.getElementById('menu-bars');
-const overlay=document.getElementById('overlay');
-const nav1=document.getElementById('nav-1');
-const nav2=document.getElementById('nav-2');
-const nav3=document.getElementById('nav-3');
-const nav4=document.getElementById('nav-4');
-const nav5=document.getElementById('nav-5');
-const navItems=[nav1, nav2, nav3, nav4, nav5];
+const form=document.getElementById('form');
+const password1El=document.getElementById('password1');
+const password2El=document.getElementById('password2');
+const messageContainer=document.querySelector('.message-container');
+const message=document.getElementById('message');
 
-//Control Navigation Animation
-function navAnimation(direction1, direction2) {
-    navItems.forEach((nav, i) => {
-        nav.classList.replace(`slide-${direction1}-${i+1}`, `slide-${direction2}-${i+1}`)
-    })
-}
-function toggleNav(){
-    //Toggle: Menu Bars Open/Closed
-    menuBars.classList.toggle('change');
-    //Toggle Menu Active
-    overlay.classList.toggle('overlay-active');
-    if (overlay.classList.contains('overlay-active')) {
-        //Animate Overlay
-        overlay.classList.replace('overlay-slide-left', 'overlay-slide-right');
-         //Animate In-Nav Items
-        navAnimation('out', 'in');
-    }else{
-        overlay.classList.replace('overlay-slide-right', 'overlay-slide-left');
+let isValid=false;
+let passwordsMatch=false;
 
-        //Animate Out -Nav Items
-        navAnimation('in', 'out');
+function validateForm() {
+    //Using Constraint API
+    isValid=form.checkValidity();
+    //Style main message for an error
+    if (!isValid) {
+        message.textContent ='Please fill out all fields';
+        message.style.color='red';
+        messageContainer.style.borderColor='red';
+    }
+    //Check to see if pass words match
+    if (password1El.value === password2El.value) {
+        passwordsMatch=true;
+        password1El.style.borderColor='green';
+        password2El.style.borderColor='green';
+        return;
+    }else {
+        passwordsMatch=false;
+        message.textContent='Makes sure passwords match.';
+        message.style.color='red';
+        messageContainer.style.borderColor='red';
+        password1El.style.borderColor='red';
+        password2El.style.borderColor='red';
+        return;
+    }
+    // If form is valid and passwords match
+    if (isValid && passwordsMatch) {
+        message.textContent= 'Successfully Registered!';
+        message.style.color='green';
+        messageContainer.style.borderColor='green';
     }
 }
-//Event Listeners
-menuBars.addEventListener('click', toggleNav);
-navItems.forEach((nav)=> {
-    nav.addEventListener('click', toggleNav)
-})
+
+function storeFormData() {
+    const user= {
+        name: form.name.value,
+        phone: form.phone.value,
+        email: form.email.value,
+        website: form.website.value,
+        password: form.password.value
+    }
+    console.log(user);
+}
+
+
+
+function processFormData(e) {
+    e.preventDefault();
+    //Validate Form
+    validateForm();
+    //Submit Data
+    if (isValid && passwordsMatch) {
+        storeFormData();
+    }
+}
+
+//Event Listener
+form.addEventListener('submit', processFormData)
