@@ -1,83 +1,131 @@
-//set constants
-const calculatorDisplay=document.querySelector('h1');
-const inputBtns=document.querySelectorAll('button')
-const clearBtn=document.getElementById('clear-btn');
+const modal=document.getElementById('modal');
+const modalShow=document.getElementById('show-modal');
+const modalClose=document.getElementById('close-modal');
+const bookmarkForm=document.getElementById('bookmark-form')
+const websiteNameEl=document.getElementById('website-name');
+const websiteUrlEl=document.getElementById('website-url');
+const bookmarksContainer=document.getElementById('bookmarks-container');
 
-//Calculate first and second values depending on operator
-const calculate={
-    '/': (firstNumber, secondNumber) => firstNumber/secondNumber,
+let bookmarks=[];
 
-    '*': (firstNumber, secondNumber) => firstNumber*secondNumber,
+//Show Modal, focus on the first on Input
+function showModal() {
+    modal.classList.add('show-modal');
+    websiteNameEl.focus();
+}
 
-    '+': (firstNumber, secondNumber) => firstNumber+secondNumber,
+//Modal Event Listener
+modalShow.addEventListener('click', showModal);
+modalClose.addEventListener('click', () => modal.classList.remove('show-modal'));
+window.addEventListener('click', (e) => (e.target===modal ? modal.classList.remove('show-modal'): false));
 
-    '-': (firstNumber, secondNumber) => firstNumber-secondNumber,
+//Validate Form
+function validate(nameValue, urlValue) {
+const expression= /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/g;
+const regex=new RegExp(expression);
+if (!nameValue || !urlValue) {
+    alert('Please submit values for both fields.');
+    return false;
+}
+if (!urlValue.match(regex)) {
+    alert('Please provide a valid web address');
+    return false;
+}
+  //Valid
+  return true;
+}
 
-    '=': (firstNumber, secondNumber) => secondNumber,
-};
-
-//Changeable variables
-let firstValue=0;
-let operatorValue='';
-let awaitingNextValue=false;
-
-function sendNumberValue(number) {
-  //Replace current display value if first vlue is entered
-  if(awaitingNextValue) {
-      calculatorDisplay.textContent=number;
-      awaitingNextValue=false;
-  }else {
-    //If current display value is 0, replace it, if not add number
-    const displayValue=calculatorDisplay.textContent;
-    calculatorDisplay.textContent=displayValue==='0' ? number : displayValue+number;
+function buildBookmarks() {
+    // Remove all bookmark elements
+    bookmarksContainer.textContent = '';
+    // Build items
+    bookmarks.forEach((bookmark) => {
+      const { name, url } = bookmark;
+      // Item
+      const item = document.createElement('div');
+      item.classList.add('item');
+      // Close Icon
+      const closeIcon = document.createElement('i');
+      closeIcon.classList.add('fas', 'fa-times');
+      closeIcon.setAttribute('title', 'Delete Bookmark');
+      closeIcon.setAttribute('onclick', `deleteBookmark('${url}')`);
+      // Favicon / Link Container
+      const linkInfo = document.createElement('div');
+      linkInfo.classList.add('name');
+      // Favicon
+      const favicon = document.createElement('img');
+      favicon.setAttribute('src', `https://s2.googleusercontent.com/s2/favicons?domain=${url}`);
+      favicon.setAttribute('alt', 'Favicon');
+      // Link
+      const link = document.createElement('a');
+      link.setAttribute('href', `${url}`);
+      link.setAttribute('target', '_blank');
+      link.textContent = name;
+      // Append to bookmarks container
+      linkInfo.append(favicon, link);
+      item.append(closeIcon, linkInfo);
+      bookmarksContainer.appendChild(item);
+    });
   }
-}
-//In case someone tries to put in a second decimal
-function addDecimal() {
-    //If operator pressed don't add decimal
-    if(awaitingNextValue) return;
-    //If no decimal, add one
-    if (!calculatorDisplay.textContent.includes('.')){
-        calculatorDisplay.textContent=`${calculatorDisplay.textContent}.`;
-    }
-}
-//Functionality
-function useOperator(operator) {
-    const currentValue=Number(calculatorDisplay.textContent);
-    //Prevent multiple operators
-    if(operatorValue && awaitingNextValue){
-        operatorValue=operator;
-        return;
-    }
-    //Assign first Value if no value
-    if(!firstValue) {
-        firstValue=currentValue;
+
+//Fetch Bookmarks
+function fetchBookmarks() {
+    //Get bookmarks from local storage if available
+    if(localStorage.getItem('bookmarks')) {
+        bookmarks=JSON.parse(localStorage.getItem('bookmarks'));
     }else {
-        const calculation = calculate[operatorValue](firstValue, currentValue);
-        calculatorDisplay.textContent=calculation;
-        firstValue=calculation;
+        //Create bookmarks array in localStorage
+        const id=`http://jacinto.design`;
+        bookmarks=[ 
+            {
+                name: 'Jacinto Design',
+                url: 'https://jacitn.design',
+            },
+        ];
+        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
     }
-    //Ready for the next value, store operator
-    awaitingNextValue=true;
-    operatorValue=operator;
+    buildBookmarks();
 }
-//Reset display
-function resetAll() {
-    firstValue=0;
-    operatorValue='';
-    awaitingNextValue=false;
-    calculatorDisplay.textContent='0';
+
+//Delete bookmarks
+function deleteBookmark(url) {
+    bookmarks.forEach((bookmark, i) => {
+        if (bookmark.url===url) {
+            bookmarks.splice(i, 1);
+        }
+    });
+    //Update bookmarks array in localStorage, repopulate the DOM
+    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+    fetchBookmarks();
 }
-//Add Event Listeners for numbers, operators, decimal buttons
-inputBtns.forEach((inputBtn) => {
-    if (inputBtn.classList.length===0) {
-        inputBtn.addEventListener('click', () => sendNumberValue(inputBtn.value, operatorValue));
-    }else if (inputBtn.classList.contains('operator')) {
-        inputBtn.addEventListener('click', () => useOperator(inputBtn.value));
-    }else if (inputBtn.classList.contains('decimal')) {
-        inputBtn.addEventListener('click', () => addDecimal());
+
+//Handle Data from Form
+function storeBookmark(e) {
+    e.preventDefault();
+    const nameValue=websiteNameEl.value;
+    let urlValue=websiteUrlEl.value;
+    if (!urlValue.includes('https://') && !urlValue.includes('http://')) {
+        urlValue=`https://${urlValue}`;
     }
-});
+    if (!validate(nameValue, urlValue)){
+    return false;
+  }
+  const bookmark={
+      name: nameValue,
+      url: urlValue,
+  };
+  bookmarks.push(bookmark);
+  console.log(bookmarks);
+  localStorage.setItem('bookmarks', JSON.stringify(bookmarks));//Arrays cannot be stored in local storage
+  fetchBookmarks();
+  bookmarkForm.reset();//So stringify makes it possible though it will require usinfg parse to make it available when we retrieve
+  websiteNameEl.focus();//it from local storage.
+}
+
 
 //Event Listener
-clearBtn.addEventListener('click', resetAll);
+bookmarkForm.addEventListener('submit', storeBookmark);
+
+//On Load, Fetch Bookmarks
+fetchBookmarks();
+
